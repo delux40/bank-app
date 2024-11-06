@@ -1,38 +1,16 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"strconv"
+
+	"github.com/Pallinder/go-randomdata"
+	"project.com/bank/fileops"
 )
 
 const accBalanceFileName = "Balance.txt"
 
-func writeBalanceToFile(balance float64) {
-	balanceText := fmt.Sprint(balance)
-	os.WriteFile(accBalanceFileName, []byte(balanceText), 0644)
-}
-
-func getBalanceFromFile() (float64, error) {
-	data, err := os.ReadFile(accBalanceFileName)
-
-	if err != nil {
-		return 1000, errors.New("Failed to find balance file.")
-	}
-
-	balanceText := string(data)
-	balance, err := strconv.ParseFloat(balanceText, 64)
-
-	if err != nil {
-		return 1000, errors.New("Failed to parse stored balance value.")
-	}
-
-	return balance, nil
-}
-
 func main() {
-	var accountBalance, err = getBalanceFromFile()
+	var accountBalance, err = fileops.GetFloatFromFile(accBalanceFileName)
 
 	if err != nil {
 		fmt.Println("ERROR")
@@ -42,14 +20,10 @@ func main() {
 	}
 
 	fmt.Println("Welcome to Go bank!")
+	fmt.Println("Reach us 24/7", randomdata.PhoneNumber())
 
 	for {
-		fmt.Println("What do you want to do?")
-		fmt.Println("1. Check the balance")
-		fmt.Println("2. Deposite money")
-		fmt.Println("3. Withdraw money")
-		fmt.Println("4. Exit")
-
+		presentOptions()
 		var choice int
 		fmt.Print("Your choice: ")
 		fmt.Scan(&choice)
@@ -67,7 +41,7 @@ func main() {
 			}
 			accountBalance += depositAmount
 			fmt.Println("Balance updated! Your balance now is: ", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteFloatToFile(accountBalance, accBalanceFileName)
 		case 3:
 			var withdrawAmount float64
 			fmt.Print("Enter withdraw amount: ")
@@ -82,7 +56,7 @@ func main() {
 			}
 			accountBalance -= withdrawAmount
 			fmt.Print("Balance updated! Your balance now is: ", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteFloatToFile(accountBalance, accBalanceFileName)
 		case 4:
 			fmt.Println("Thanks for choosing our bank!")
 			fmt.Println("Goodbye!")
